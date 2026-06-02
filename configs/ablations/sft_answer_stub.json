@@ -1,0 +1,8 @@
+{
+  "name": "answer_stub_format_ablation",
+  "purpose": "Test whether answer-format supervision alone improves extractability.",
+  "train_style": "answer_stub",
+  "prompt_style": "answer_marker",
+  "loss_style": "full_target",
+  "expected_failure": "High extractability but weak numerical correctness."
+}

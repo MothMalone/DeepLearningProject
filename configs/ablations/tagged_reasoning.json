@@ -1,0 +1,10 @@
+{
+  "name": "tagged_reasoning_warmup",
+  "purpose": "Teach stable <think>/<answer> formatting before optional GRPO preflight.",
+  "train_styles": [
+    "tagged_answer_only",
+    "tagged_equation_focused",
+    "tagged_equation_minimal"
+  ],
+  "observation": "Tags became extractable, but sampled answers were often guesses."
+}

@@ -1,0 +1,5 @@
+{
+  "name": "fdd_lite_type_routing",
+  "purpose": "Use Program-of-Thought-like compact targets and type routing.",
+  "observation": "Some variants improved format but regressed from rewind3 due weaker reasoning signal."
+}

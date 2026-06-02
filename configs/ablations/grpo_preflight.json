@@ -1,0 +1,7 @@
+{
+  "name": "grpo_preflight",
+  "purpose": "Check whether sampled rollouts have enough correctness reward before RL updates.",
+  "train_stage": "grpo",
+  "preflight_required": true,
+  "observation": "Sparse correctness reward made GRPO unsafe to scale in this project."
+}

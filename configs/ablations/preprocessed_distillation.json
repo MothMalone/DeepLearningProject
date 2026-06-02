@@ -1,0 +1,9 @@
+{
+  "name": "local_llm_preprocessing",
+  "purpose": "Use a local open-source math model to clean train.json targets for SFT.",
+  "teacher_examples": [
+    "Qwen/Qwen2.5-Math-7B-Instruct",
+    "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
+  ],
+  "rule_status": "Development workflow only; final official Kaggle run used provided data and local base model."
+}

@@ -1,0 +1,8 @@
+{
+  "name": "equation_focused_sft",
+  "purpose": "Train on compact arithmetic/equation snippets from train.json responses.",
+  "train_style": "equation_focused",
+  "prompt_style": "answer_marker",
+  "loss_style": "answer_line_only_or_full_target",
+  "observation": "Improved numeric pair rate but did not solve operation selection."
+}

@@ -1,0 +1,33 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Local environments
+.venv/
+venv/
+env/
+
+# Large/generated ML artifacts
+data/
+outputs/
+experiments/
+processed/
+working/
+wandb/
+*.log
+*.safetensors
+*.bin
+*.pt
+*.pth
+
+# Kaggle/Vast generated outputs
+gpt2_math_ckpt/
+valid_output.json
+valid_report.json
+baseline_valid_output.json
+baseline_valid_report.json
+test_predictions.json
+experiment_report.json
+error_analysis.json
+hpo_report.json

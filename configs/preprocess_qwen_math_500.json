@@ -1,0 +1,15 @@
+{
+  "input": "/workspace/input/dataset-math/train.json",
+  "output": "/workspace/processed/qwen_math_distilled_gsm_500.jsonl",
+  "report": "/workspace/processed/qwen_math_distilled_gsm_500_report.json",
+  "model": "Qwen/Qwen2.5-Math-7B-Instruct",
+  "max_examples": 500,
+  "type_filter": "GSM",
+  "load_in_4bit": true,
+  "batch_size": 1,
+  "max_new_tokens": 256,
+  "temperature": 0.0,
+  "top_p": 1.0,
+  "resume": true,
+  "seed": 42
+}
