@@ -67,6 +67,19 @@ The official Kaggle notebook must satisfy:
    - `/kaggle/working/test_predictions.json`
    - `/kaggle/working/hpo_report.json`
 
+## Experimental Second-Stage Notebooks
+
+These are exploratory notebooks based on the current best rewind3 family config.
+They reduce the SFT warmup to 5 epochs to leave runtime for a second stage.
+
+| Notebook | Purpose | Status |
+|---|---|---|
+| `rewind3_grpo_experiment.ipynb` | SFT warmup, then answer-anchor GRPO/RLVR if rollout preflight has enough signal | Experimental |
+| `rewind3_fdd_experiment.ipynb` | SFT warmup, then feedback-driven self-distillation from exact train-set candidates | Experimental |
+
+The safest final submission remains `rewind3.ipynb` unless one of these
+notebooks clearly beats it on local validation and still fits the Kaggle runtime.
+
 ## Local Smoke Checks
 
 These checks do not train a model:
