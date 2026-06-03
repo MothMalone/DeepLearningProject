@@ -14,21 +14,31 @@
     "weight_decay": 0.01,
     "computation_weight": 2.5,
     "anchor_weight": 6.0,
+    "eos_weight": 8.0,
     "seed": 42
+  },
+  "data": {
+    "max_valid_samples": 1000,
+    "dedup_train_queries": true,
+    "dedup_similar_queries": true,
+    "dedup_jaccard_threshold": 0.9,
+    "dedup_sequence_threshold": 0.94,
+    "dedup_require_number_signature_match": true
   },
   "decoding": {
     "style": "self_consistency",
-    "num_samples": 15,
-    "temperature": 0.4,
-    "top_k": 40,
-    "top_p": 0.9,
+    "num_samples": 21,
+    "temperature": 0.5,
+    "top_k": 50,
+    "top_p": 0.95,
     "max_new_tokens": 80
   },
-  "validation": {
-    "n": 500,
-    "raw_score": 1682,
-    "max_raw_score": 5000,
-    "score_pct": 0.3364,
-    "exact_count": 157
+  "validation_reference": {
+    "n": 1000,
+    "raw_score": 3285,
+    "max_raw_score": 10000,
+    "score_pct": 0.3285,
+    "exact_count": 303,
+    "note": "Completed 1000-record reference before train-query dedup was added."
   }
 }

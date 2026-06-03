@@ -1,0 +1,11 @@
+failure,occurrences,mean_score
+arithmetic_mistake,449,0.0
+clean_pass,297,10.0
+reasoning_collapse,171,1.32749
+repetition_loop,80,1.0875
+extraction_failure,24,0.0
+formatting_drift,17,0.0
+decimal_placement_error,15,0.0
+premature_eos,3,0.0
+bilingual_leakage,1,1.0
+operator_sign_mistake,1,0.0

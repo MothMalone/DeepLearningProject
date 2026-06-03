@@ -1,11 +1,9 @@
 {
   "grid": [
-    {"label": "beam3", "use_beam": true, "num_beams": 3},
-    {"label": "beam5", "use_beam": true, "num_beams": 5},
-    {"label": "beam7", "use_beam": true, "num_beams": 7},
-    {"label": "sc5_t04", "sc": true, "n": 5, "temperature": 0.4, "top_k": 40, "top_p": 0.9},
-    {"label": "sc9_t04", "sc": true, "n": 9, "temperature": 0.4, "top_k": 40, "top_p": 0.9},
-    {"label": "sc15_t04", "sc": true, "n": 15, "temperature": 0.4, "top_k": 40, "top_p": 0.9}
+    {"label": "sc15_t04", "sc": true, "n": 15, "temperature": 0.4, "top_k": 40, "top_p": 0.9},
+    {"label": "sc21_t04", "sc": true, "n": 21, "temperature": 0.4, "top_k": 40, "top_p": 0.9},
+    {"label": "sc21_t05", "sc": true, "n": 21, "temperature": 0.5, "top_k": 50, "top_p": 0.95},
+    {"label": "sc31_t05", "sc": true, "n": 31, "temperature": 0.5, "top_k": 50, "top_p": 0.95}
   ],
-  "observation": "Self-consistency dominated beam search on the best rewind3 checkpoints."
+  "observation": "On the completed 1000-record validation sweep, sc21_t05 scored 3285/10000 and beat sc15_t04 and sc21_t04."
 }

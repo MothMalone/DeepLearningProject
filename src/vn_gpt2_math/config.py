@@ -68,22 +68,18 @@ class DecodingConfig:
     max_new_tokens: int = 80
     use_beam_search: bool = False
     num_beams: int = 5
-    num_samples: int = 15
-    temperature: float = 0.4
-    top_k: int = 40
-    top_p: float = 0.90
+    num_samples: int = 21
+    temperature: float = 0.5
+    top_k: int = 50
+    top_p: float = 0.95
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
 DECODING_GRID: list[tuple[str, dict[str, Any]]] = [
-    ("beam3", {"use_beam": True, "num_beams": 3, "sc": False}),
-    ("beam5", {"use_beam": True, "num_beams": 5, "sc": False}),
-    ("beam7", {"use_beam": True, "num_beams": 7, "sc": False}),
-    ("sc5_t04", {"use_beam": False, "sc": True, "n": 5, "temp": 0.4, "top_k": 40, "top_p": 0.90}),
-    ("sc9_t04", {"use_beam": False, "sc": True, "n": 9, "temp": 0.4, "top_k": 40, "top_p": 0.90}),
-    ("sc9_t03", {"use_beam": False, "sc": True, "n": 9, "temp": 0.3, "top_k": 30, "top_p": 0.85}),
-    ("sc9_t05", {"use_beam": False, "sc": True, "n": 9, "temp": 0.5, "top_k": 50, "top_p": 0.95}),
     ("sc15_t04", {"use_beam": False, "sc": True, "n": 15, "temp": 0.4, "top_k": 40, "top_p": 0.90}),
+    ("sc21_t04", {"use_beam": False, "sc": True, "n": 21, "temp": 0.4, "top_k": 40, "top_p": 0.90}),
+    ("sc21_t05", {"use_beam": False, "sc": True, "n": 21, "temp": 0.5, "top_k": 50, "top_p": 0.95}),
+    ("sc31_t05", {"use_beam": False, "sc": True, "n": 31, "temp": 0.5, "top_k": 50, "top_p": 0.95}),
 ]

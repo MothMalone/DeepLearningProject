@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Modular training entrypoint skeleton for the rewind3 full fine-tuning method.
+"""Modular training entrypoint for the final fine-tuning method.
 
-The official final run remains `rewind3.ipynb` because Kaggle notebook execution
-is the submission format. This script documents the same components as a normal
-research-code entrypoint and supports small smoke runs when the Kaggle inputs are
-available locally.
+Kaggle notebook execution is still the submission format, but this script keeps
+the training path inspectable outside the notebook and supports small smoke
+runs when local Kaggle inputs are available.
 """
 
 from __future__ import annotations
@@ -32,7 +31,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model", required=True, type=Path)
     parser.add_argument("--output-dir", required=True, type=Path)
     parser.add_argument("--max-train-samples", type=int, default=0)
-    parser.add_argument("--max-valid-samples", type=int, default=500)
+    parser.add_argument("--max-valid-samples", type=int, default=1000)
     parser.add_argument("--epochs", type=int, default=1)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--max-steps", type=int, default=-1)

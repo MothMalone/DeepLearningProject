@@ -5,8 +5,11 @@ __all__ = [
     "config",
     "data",
     "dataset",
+    "dedup",
+    "error_analysis",
     "generation",
     "metrics",
+    "reporting",
     "targets",
     "training",
 ]

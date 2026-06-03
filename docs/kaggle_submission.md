@@ -16,6 +16,8 @@ The notebook must write:
 /kaggle/working/valid_output.json
 /kaggle/working/valid_report.json
 /kaggle/working/test_predictions.json
+/kaggle/working/hpo_report.json
+/kaggle/working/report_artifacts/
 ```
 
 The test prediction schema is:
@@ -36,5 +38,6 @@ diagnostics in `test_predictions.json`.
 
 ## Safe Final Path
 
-The safest official path is to run `rewind3.ipynb` inside Kaggle and submit the
-Kaggle-generated notebook version. Vast.ai experiments are for development only.
+Run `notebooks/final_experiment.ipynb` inside Kaggle and submit the
+Kaggle-generated output. Archived notebooks and Vast.ai scripts are development
+history only.

@@ -10,7 +10,6 @@ from .answers import VI_ANCHORS, extract_answer, parse_number
 from .config import PROMPT_TEMPLATE
 
 VIET_DIGIT_MAP: dict[str, int] = {
-    "không": 0,
     "một": 1,
     "hai": 2,
     "ba": 3,
@@ -24,14 +23,83 @@ VIET_DIGIT_MAP: dict[str, int] = {
 }
 
 
+LATEX_FUNCTIONS = (
+    "arccos",
+    "arcsin",
+    "arctan",
+    "cos",
+    "sin",
+    "tan",
+    "cot",
+    "sec",
+    "csc",
+    "log",
+    "ln",
+)
+
+
+def strip_asy_blocks(text: str) -> str:
+    """Remove Asymptote diagram code that burns GPT-2 context and corrupts commas."""
+    return re.sub(r"\[asy\].*?(?:\[/asy\]|$)", " ", text, flags=re.IGNORECASE | re.DOTALL)
+
+
+def normalize_latex_math(text: str) -> str:
+    """Conservatively canonicalize common LaTeX math without erasing structure."""
+    text = strip_asy_blocks(text)
+    text = text.replace("\\$", "").replace("\\%", "%")
+    text = re.sub(r"\\angle\s*([A-Z]{1,4})", r"góc \1", text)
+    text = re.sub(r"\\triangle\s*([A-Z]{1,4})", r"tam giác \1", text)
+    text = re.sub(r"\\(?:d|t)?frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}", r"((\1)/(\2))", text)
+    text = re.sub(r"\\sqrt\s*\{([^{}]+)\}", r"sqrt(\1)", text)
+    text = re.sub(r"\\sqrt\s*(\d+(?:[.,]\d+)?)", r"sqrt(\1)", text)
+
+    replacements = {
+        "\\times": " * ",
+        "\\cdot": " * ",
+        "\\div": " / ",
+        "\\leq": " <= ",
+        "\\le": " <= ",
+        "\\geq": " >= ",
+        "\\ge": " >= ",
+        "\\neq": " != ",
+        "\\ne": " != ",
+        "\\equiv": " = ",
+        "\\pm": " ± ",
+        "\\pi": " pi ",
+    }
+    for src, dst in replacements.items():
+        text = text.replace(src, dst)
+
+    for fn in LATEX_FUNCTIONS:
+        text = re.sub(rf"\\{fn}\b", fn, text)
+
+    # Keep the semantic names of frequent variables instead of deleting them.
+    greek = (
+        "alpha",
+        "beta",
+        "gamma",
+        "delta",
+        "theta",
+        "lambda",
+        "mu",
+        "phi",
+        "omega",
+    )
+    for name in greek:
+        text = re.sub(rf"\\{name}\b", name, text)
+
+    text = re.sub(r"\\(?:left|right)\b", "", text)
+    text = re.sub(r"\\(?:begin|end)\{[^{}]+\}", " ", text)
+    return text
+
+
 def clean_math_text(text: str) -> str:
     """Light typographical cleanup used by the final notebook."""
     if not isinstance(text, str):
         return text
     text = unicodedata.normalize("NFC", text)
-    text = re.sub(r"\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}", r"(\1/\2)", text)
-    text = re.sub(r"\\sqrt\s*\{([^{}]+)\}", r"sqrt(\1)", text)
-    text = text.replace("\\times", " * ").replace("\\cdot", " * ")
+    text = normalize_latex_math(text)
+    text = re.sub(r"\$\$([^$]+)\$\$", r"\1", text)
     text = re.sub(r"\$([^$]{1,100})\$", r"\1", text)
     text = re.sub(r"(?<=\d),(?=\d{3}\b)", "", text)
     text = re.sub(r"(?<=\d)\.(?=\d{3}\b)", "", text)

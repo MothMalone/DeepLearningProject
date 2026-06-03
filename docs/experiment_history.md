@@ -1,31 +1,58 @@
 # Experiment History
 
-This log summarizes the main experimental directions. Scores are local
-validation results and should be interpreted as development signals, not final
-test performance.
+This file records the main directions we tried before settling on the final
+notebook. Scores are local validation results, not hidden-test results.
 
-| Family | Representative Config | Observation |
+## Summary Table
+
+| Direction | What changed | Result |
 |---|---|---|
-| Starter SFT | original long responses | Pipeline worked but generated repetitive, wrong reasoning. |
-| Answer stub | `answer_stub`, answer marker | Improved extractability, but mostly learned answer format. |
-| Equation focused | compact equation targets | Improved numeric pair rate; correctness remained low. |
-| Tagged SFT | `<think>/<answer>` warmups | Stabilized tags but often guessed answers. |
-| GRPO/RLVR | train-set verifier reward | Preflight showed sparse correctness reward; unsafe to scale. |
-| Local LLM preprocessing | Qwen/DeepSeek teacher cleanup | Useful as a research direction, not used in final rule-safe Kaggle run. |
-| FDD-lite/type routing | PoT-like targets | Some runs regressed due target mismatch and answer-only collapse. |
-| rewind3 final | compact targets + weighted loss + SC decoding | Best local result; arithmetic errors remain dominant. |
+| Starter SFT | full translated solutions | Repetition and weak answer extraction. |
+| Answer-stub SFT | answer marker only | Cleaner formatting, poor arithmetic. |
+| Equation-focused targets | compact equation snippets | Better numeric outputs, still wrong operations. |
+| Tagged reasoning | `<think>/<answer>` style | Stable tags, no clear accuracy gain. |
+| Local teacher preprocessing | Qwen/DeepSeek cleanup | Useful for analysis, not used in the final rule-safe run. |
+| FDD-lite | exact sampled train candidates | Regressed after second-stage SFT. |
+| GRPO/RLVR preflight | verifier reward on sampled answers | Reward too sparse for the runtime budget. |
+| rewind family | compact targets + weighted loss | Best stable training setup. |
+| self-consistency decoding | sample and vote final answers | Largest reliable inference-time gain. |
 
-## Best Observed rewind3 Run
+## Best Completed References
 
-```text
-Validation subset : 500 examples
-Raw score         : 1682 / 5000
-Exact answers     : 157 / 500
-Main gain         : self-consistency decoding over beam
+| Run | Validation examples | Score | Notes |
+|---|---:|---:|---|
+| rewind reference | 500 | 1682 / 5000 | 33.64%, `sc9_t04` fallback after sweep skip |
+| final-testing reference | 1000 | 3285 / 10000 | 32.85%, best completed decode `sc21_t05` |
+
+The 500-example run is useful for detailed failure analysis. The 1,000-example
+run is the better reference for final reporting because it reduces validation
+noise and includes a decoding comparison.
+
+## Error Profile
+
+The failure analysis consistently points to arithmetic mistakes as the main
+source of lost score. Extraction failures are relatively small after answer
+cleanup, so pushing harder on answer formatting is unlikely to move the score
+much. The weak groups are `GSM_SV`, `GSM_FOBAR`, and `MATH_FOBAR`; the strong
+groups are rephrased GSM problems.
+
+## Data-Centric Work
+
+The final data checks focused on problems that could silently corrupt training:
+
+- broad Vietnamese number-word normalization;
+- `phần N` being mistaken for a fraction when it means a section;
+- LaTeX fraction flattening that changes operator precedence;
+- Asymptote diagram code inside MATH records;
+- duplicate or near-duplicate Vietnamese queries.
+
+The reproducible audit entrypoint is:
+
+```bash
+python3 scripts/audit_dataset_quality.py \
+  --data-dir /path/to/dataset-math \
+  --output outputs/data_quality_report.json
 ```
 
-## Failure Breakdown
-
-The `VietnameseMathErrorAnalyzer` consistently identified arithmetic mistakes as
-the dominant residual error. Formatting and extraction were mostly solved by the
-final runs, so more answer-anchor pressure was not the right next move.
+The final notebook now also records a train-query dedup report and a set of
+report figures under `/kaggle/working/report_artifacts/`.

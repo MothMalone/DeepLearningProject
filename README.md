@@ -1,107 +1,113 @@
-# Vietnamese GPT-2 Math Word Problem Fine-Tuning
+# Vietnamese GPT-2 Math Fine-Tuning
 
-This repository contains our deep-learning project for fine-tuning the fixed
-`NlpHUST/gpt2-vietnamese` backbone on Vietnamese math word problems.
+This project fine-tunes a fixed Vietnamese GPT-2 model for Vietnamese math word
+problems. The work started in Kaggle notebooks, then was organized into a small
+training/evaluation package so the final run can be inspected and reproduced.
 
-The project started as Kaggle notebooks and was later organized into reusable
-modules, experiment configs, and reporting scripts. The final empirical core is
-`rewind3.ipynb`, which produced the best local validation result among our
-rule-compliant runs.
+The final notebook is:
 
-## Best Local Result
+```text
+notebooks/final_experiment.ipynb
+```
 
-Validation subset: 500 examples from `valid.json`
+Older notebooks are kept in `archive/notebooks/` for provenance, but they are not
+part of the main project workflow.
 
-| Metric | Value |
+## Task Setup
+
+- Base model: `NlpHUST/gpt2-vietnamese`
+- Data: `kimanh2002/dataset-math`
+- Runtime target: Kaggle GPU notebook with Internet disabled
+- Output file: `/kaggle/working/test_predictions.json`
+- Metric: numeric answer score bucketed as 0/1/5/10 by relative error
+
+The hidden-test path does not use labels, type routing, external solvers, or
+test-time learning.
+
+## Current Validation Reference
+
+The strongest completed reference run used 1,000 validation examples and
+self-consistency decoding:
+
+| Setting | Value |
 |---|---:|
-| Raw score | 1682 / 5000 |
-| Score percentage | 33.64% |
-| Exact answers | 157 / 500 |
-| Extractable answers | 491+ / 500 depending on decoding |
-| Main failure mode | Arithmetic mistake |
+| Validation score | 3285 / 10000 |
+| Score percentage | 32.85% |
+| Exact answers | 303 / 1000 |
+| Best decoding | `sc21_t05` |
 
-The final stretch showed that the largest gain came from self-consistency
-decoding on the best epoch checkpoint, not from changing target construction.
+The earlier 500-example rewind run reached 1682 / 5000 (33.64%). Both result
+sets are saved under `reports/final_results/`.
 
-## Constraints
-
-The official Kaggle notebook must satisfy:
-
-- Internet OFF
-- GPU accelerator
-- fixed model backbone: `NlpHUST/gpt2-vietnamese`
-- use only provided `train.json`, `valid.json`, and optional `test.json`
-- no external APIs, online solvers, LoRA/PEFT, GRPO, teacher distillation, or extra data
-- no test-time learning
-- output `/kaggle/working/test_predictions.json` without gold-answer fields
-
-## Repository Layout
+## Project Layout
 
 ```text
 .
-├── rewind3.ipynb                         # final/best Kaggle notebook core
-├── kaggle_vietnamese_gpt2_math_notebook.py
-├── run_vast_experiments.sh               # historical Vast.ai runner
-├── analyze_experiment_results.py
-├── src/vn_gpt2_math/                     # reusable research modules
-├── train.py                              # modular training entrypoint skeleton
-├── evaluate.py                           # evaluate prediction JSON against valid.json
-├── infer.py                              # frozen checkpoint inference entrypoint
-├── configs/                              # final and ablation configs
-├── scripts/                              # preprocessing and result-inspection tools
-├── tests/                                # parsing/metric smoke tests
-└── docs/                                 # method, history, and submission notes
+├── notebooks/
+│   └── final_experiment.ipynb      # final Kaggle notebook
+├── src/vn_gpt2_math/
+│   ├── answers.py                  # answer extraction and numeric parsing
+│   ├── targets.py                  # text cleanup and compact target creation
+│   ├── dedup.py                    # train-query duplicate removal
+│   ├── metrics.py                  # validation metric
+│   ├── generation.py               # beam/self-consistency generation
+│   ├── error_analysis.py           # failure taxonomy
+│   └── reporting.py                # tables and report figures
+├── scripts/
+│   ├── audit_dataset_quality.py
+│   └── build_report_artifacts.py
+├── configs/
+│   ├── final/
+│   ├── decoding/
+│   └── ablations/
+├── reports/final_results/          # saved tables and charts
+├── docs/                           # method notes and experiment history
+├── tests/
+├── train.py
+├── evaluate.py
+└── infer.py
 ```
 
-## Reproducing the Final Kaggle Run
+## Reproduce the Final Notebook
 
-1. Open `rewind3.ipynb` in Kaggle.
-2. Attach the two Kaggle inputs:
-   - `kimanh2002/dataset-math`
-   - `kimanh2002/nlphustgpt2-vietnamese`
-3. Set Internet OFF and GPU ON.
-4. Run all cells.
-5. Confirm these files exist:
-   - `/kaggle/working/valid_output.json`
-   - `/kaggle/working/valid_report.json`
-   - `/kaggle/working/test_predictions.json`
-   - `/kaggle/working/hpo_report.json`
+In Kaggle:
 
-## Experimental Second-Stage Notebooks
+1. Attach `kimanh2002/dataset-math`.
+2. Attach `kimanh2002/nlphustgpt2-vietnamese`.
+3. Turn Internet off and enable GPU.
+4. Run `notebooks/final_experiment.ipynb`.
 
-These are exploratory notebooks based on the current best rewind3 family config.
-They reduce the SFT warmup to 5 epochs to leave runtime for a second stage.
+The notebook writes:
 
-| Notebook | Purpose | Status |
-|---|---|---|
-| `rewind3_grpo_experiment.ipynb` | SFT warmup, then answer-anchor GRPO/RLVR if rollout preflight has enough signal | Experimental |
-| `rewind3_fdd_experiment.ipynb` | SFT warmup, then feedback-driven self-distillation from exact train-set candidates | Experimental |
+```text
+/kaggle/working/valid_output.json
+/kaggle/working/valid_report.json
+/kaggle/working/test_predictions.json
+/kaggle/working/hpo_report.json
+/kaggle/working/report_artifacts/
+```
 
-The safest final submission remains `rewind3.ipynb` unless one of these
-notebooks clearly beats it on local validation and still fits the Kaggle runtime.
+## Local Checks
 
-## Local Smoke Checks
-
-These checks do not train a model:
+These commands do not train a model:
 
 ```bash
 python3 -m unittest discover -s tests
-python3 -m py_compile train.py evaluate.py infer.py analyze_experiment_results.py
+python3 -m py_compile train.py evaluate.py infer.py scripts/build_report_artifacts.py
+python3 scripts/build_report_artifacts.py --skip-patch
 ```
 
-## Research Summary
+## What Worked
 
-We tried several families of approaches:
+The most reliable gains came from the basic supervised setup rather than a
+second-stage algorithm:
 
-- plain SFT baselines
-- answer-only and answer-stub SFT
-- equation-focused and short-solution SFT
-- tagged `<think>/<answer>` warmups
-- GRPO/RLVR preflight experiments
-- local-LLM preprocessing/distillation workflow
-- FDD/PoT-inspired compact arithmetic targets
-- final rewind3 weighted-loss + self-consistency decoding
+- compact arithmetic targets from the provided Vietnamese solutions;
+- token-level weighting around computation tokens and final answer anchors;
+- checkpoint selection by generated validation score;
+- self-consistency decoding on the selected checkpoint.
 
-Most target rewrites improved extractability but did not reliably improve numeric
-correctness. The best rule-compliant result came from preserving the rewind3
-compact target/filter pipeline and adding better checkpoint/decoding selection.
+GRPO and feedback-driven self-distillation were explored, but both were too
+sparse or unstable for the available runtime. The remaining error profile is
+mostly arithmetic: the model usually emits an extractable answer, but still
+chooses the wrong operation or loses track of a variable chain.

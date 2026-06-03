@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 import re
+from collections import Counter
 from typing import Optional
 
 VI_ANCHORS = [
@@ -97,6 +98,8 @@ def parse_number(value: Optional[str]) -> Optional[float]:
     text = value.strip()
     if not text:
         return None
+    if text.lower() == "không":
+        return 0.0
 
     if re.fullmatch(r"-?\d+,\d+", text):
         text = text.replace(",", ".")
@@ -180,3 +183,35 @@ def score_one(error: Optional[float], extractable: bool) -> int:
     if error <= 0.50:
         return 1
     return 0
+
+
+def vote_candidate_texts(candidates: list[str]) -> tuple[str, dict]:
+    """Pick the shortest candidate from the strongest normalized answer cluster."""
+    cleaned_candidates = [clean_model_output(candidate or "") for candidate in candidates]
+    parsed: list[tuple[float, str, str]] = []
+    for candidate in cleaned_candidates:
+        answer = extract_pred({"model_output": candidate})
+        number = parse_number(answer)
+        if number is not None and answer is not None:
+            parsed.append((round(number, 4), candidate, answer))
+
+    if not cleaned_candidates:
+        return "", {"selection_reason": "empty_candidates", "vote_counts": {}}
+
+    if not parsed:
+        chosen = sorted(cleaned_candidates, key=len)[0]
+        return chosen, {"selection_reason": "no_parseable_answer", "vote_counts": {}}
+
+    vote_counts = Counter(number for number, _, _ in parsed)
+    best_count = max(vote_counts.values())
+    tied_answers = {answer for answer, count in vote_counts.items() if count == best_count}
+    matching = [(candidate, answer, number) for number, candidate, answer in parsed if number in tied_answers]
+    chosen, chosen_answer, best_answer = sorted(matching, key=lambda item: len(item[0]))[0]
+    if "####" not in chosen and chosen_answer:
+        chosen = f"####đáp án là: {chosen_answer}"
+    return chosen, {
+        "selection_reason": "numeric_majority" if best_count > 1 else "single_parseable_answer",
+        "selected_vote_key": best_answer,
+        "selected_vote_count": best_count,
+        "vote_counts": {str(k): v for k, v in vote_counts.items()},
+    }

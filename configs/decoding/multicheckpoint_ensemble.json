@@ -1,0 +1,24 @@
+{
+  "name": "frozen_multicheckpoint_self_consistency",
+  "description": "Inference-only vote across the top epoch checkpoints from a rewind3 run. No gradients, optimizer steps, external data, or type-dependent routing.",
+  "enabled": true,
+  "checkpoint_selection": {
+    "source": "epoch_scores",
+    "rank_by": ["raw_score", "exact_count", "extractable_count"],
+    "top_checkpoints": 3,
+    "minimum_checkpoints": 2
+  },
+  "sampling": {
+    "samples_per_checkpoint": 5,
+    "temperature": 0.4,
+    "top_k": 40,
+    "top_p": 0.9,
+    "max_new_tokens": 80
+  },
+  "selection": {
+    "vote_key": "normalized_numeric_final_answer",
+    "tie_break": "shortest_candidate",
+    "fallback": "shortest_cleaned_candidate"
+  },
+  "expected_runtime_note": "Top3 x 5 samples is roughly comparable to sc15_t04 plus checkpoint load overhead. The notebook evaluates it only after the normal decoding sweep and uses it for test only if validation improves."
+}

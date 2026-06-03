@@ -1,0 +1,4 @@
+label,raw_score,max_raw_score,score_pct,exact_count,extractable_count,n,median_rel_error
+sc15_t04,3163,10000,0.3163,293,983,1000,0.6
+sc21_t04,3144,10000,0.3144,291,980,1000,0.6
+sc21_t05,3285,10000,0.3285,303,976,1000,0.5
